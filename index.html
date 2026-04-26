@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英単語テスト</title>
+<style>
+body { font-family: sans-serif; text-align: center; padding: 20px; }
+button { display:block; margin:10px auto; padding:12px; width:85%; font-size:16px; }
+input { padding:10px; width:80%; }
+</style>
+</head>
+<body>
+
+<h2>英単語テスト</h2>
+
+<div id="start">
+  <input id="name" placeholder="名前を入力"><br><br>
+  <button onclick="startTest()">スタート</button>
+</div>
+
+<div id="quiz" style="display:none;">
+  <h3 id="status"></h3>
+  <h2 id="word"></h2>
+  <div id="choices"></div>
+  <p id="result"></p>
+</div>
+
+<script src="words.js"></script>
+
+<script>
+let current = 0;
+let total = 50;
+let score = 0;
+let correctIndex = 0;
+let name = "";
+
+function startTest(){
+  name = document.getElementById("name").value;
+  if(!name){ alert("名前を入力"); return; }
+
+  document.getElementById("start").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+
+  nextQuestion();
+}
+
+function nextQuestion(){
+  current++;
+
+  if(current > total){
+    finish();
+    return;
+  }
+
+  document.getElementById("status").textContent = current + " / " + total;
+
+  const q = words[Math.floor(Math.random() * words.length)];
+
+  const correct = q.meaning;
+  let choices = [correct];
+
+  while(choices.length < 4){
+    let w = words[Math.floor(Math.random()*words.length)].meaning;
+    if(!choices.includes(w)) choices.push(w);
+  }
+
+  choices.sort(()=>Math.random()-0.5);
+  correctIndex = choices.indexOf(correct);
+
+  document.getElementById("word").textContent = q.word;
+
+  const div = document.getElementById("choices");
+  div.innerHTML = "";
+
+  choices.forEach((c,i)=>{
+    const btn = document.createElement("button");
+    btn.textContent = c;
+    btn.onclick = ()=>answer(i);
+    div.appendChild(btn);
+  });
+
+  document.getElementById("result").textContent="";
+}
+
+function answer(i){
+  if(i === correctIndex){
+    score++;
+    document.getElementById("result").textContent="正解！";
+  }else{
+    document.getElementById("result").textContent="不正解";
+  }
+
+  setTimeout(nextQuestion,700);
+}
+
+function finish(){
+  document.body.innerHTML = `
+    <h1>終了</h1>
+    <h2>${score} / ${total}</h2>
+    <p>${Math.round(score/total*100)}%</p>
+  `;
+
+  sendResult();
+}
+
+// ★ここにGASのURLを入れる
+function sendResult(){
+  fetch("https://script.google.com/macros/s/AKfycbzW6ZbSzFwZhfTOosa9DrokCQqHSrYgzpq48WOdEqjhx3OGobN8XvW84_mJ99aQI1NM/exec", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      name:name,
+      score:score,
+      total:total
+    })
+  });
+}
+</script>
+
+</body>
+</html>
