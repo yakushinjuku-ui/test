@@ -106,8 +106,9 @@ function finish(){
 
 // ★ここにGASのURLを入れる
 function sendResult(){
-  fetch("https://script.google.com/macros/s/AKfycbzW6ZbSzFwZhfTOosa9DrokCQqHSrYgzpq48WOdEqjhx3OGobN8XvW84_mJ99aQI1NM/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyc9tnA_pKsCjUMQwLn_EDEJBLqxCXNo3eTPWScnYyg8RUIoo4V409pmYHSNB3TUi3X/exec", {
     method:"POST",
+    mode: "no-cors",  // ←これ追加
     headers:{"Content-Type":"application/json"},
     body: JSON.stringify({
       name:name,
